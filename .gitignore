@@ -8,3 +8,5 @@ models/deterministic/*
 !models/deterministic/.gitkeep
 models/stochastic/*
 !models/stochastic/.gitkeep
+audio/*
+!audio/.gitkeep

@@ -16,7 +16,7 @@ mod = importlib.import_module('nix-tts.nix.models.TTS')
 klass = getattr(mod, 'NixTTSInference')
 
 sampling_frequency = 22050
-filename = 'output.wav'
+filename = 'audio/output.wav'
 
 # Initiate Nix-TTS
 nix = klass(model_dir=determ_model_path)
