@@ -1,3 +1,6 @@
 [submodule "soran"]
 	path = soran
 	url = https://github.com/LordofBone/soran.git
+[submodule "nix-tts"]
+	path = nix-tts
+	url = https://github.com/rendchevi/nix-tts.git

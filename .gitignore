@@ -4,3 +4,7 @@ __pycache__
 *.egg-info/
 temp/*
 misc/*
+models/deterministic/*
+!models/deterministic/.gitkeep
+models/stochastic/*
+!models/stochastic/.gitkeep
