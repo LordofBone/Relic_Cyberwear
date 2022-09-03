@@ -8,3 +8,9 @@ determ_model_path = Path(__file__).parent.parent / f"models/deterministic"
 stoch_model_path = Path(__file__).parent.parent / f"models/stochastic"
 
 boot_text = "Welcome to the Arasaka Relic Cyberware System"
+long_boot_text = "Welcome to the Arasaka Relic Cyberware System, your consciousness is now fused with someone whos " \
+                 "mind was acquired by the soul killer software produced by the arasaka corporation, please enjoy our" \
+                 " product "
+
+audio_on = True
+file_name = "tts_output.wav"

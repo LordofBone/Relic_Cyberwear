@@ -9,3 +9,4 @@ scipy~=1.8.1
 tensorflow~=2.9.1
 tensorflow-gpu~=2.9.1
 max30105~=0.0.5
+playsound~=1.2.2
