@@ -20,9 +20,13 @@ class TalkController:
         """
         This is the main class that runs the STT and bot interaction.
         """
+        self.bot_control = BotControl
+
         self.STT_handler = SpeechtoTextHandler()
 
         self.inference_output = None
+
+        self.bot_response = None
 
         self.interrupt = False
 
@@ -70,3 +74,41 @@ class TalkController:
         CurrentProcessQueueAccess.queue_addition(RESPONSE_FOUND, f"REPLY: {self.bot_response}", 1)
 
         logger.debug(self.bot_response)
+
+    def command_checker(self):
+        """
+        This function checks if the bot response is a command.
+        :return:
+        """
+        if self.inference_output == "command shut down":
+            EventQueueAccess().add_event(HARDWARE_PI, SHUTDOWN, 5)
+        elif self.inference_output == "command recite":
+            EventQueueAccess().add_event(TALK_SYSTEMS, REPEAT_INPUT_TTS, 3)
+        elif self.inference_output == "command repeat":
+            EventQueueAccess().add_event(TALK_SYSTEMS, REPEAT_LAST, 3)
+
+    def queue_checker(self):
+        """
+        Check the event queue for events
+        :return:
+        """
+        while True:
+            event = EventQueueAccess.get_latest_event([TALK_SYSTEMS])
+
+            if event:
+                split_event_details = event[2].split("|")
+                if split_event_details[0] == LISTEN_STT:
+                    self.listen_stt()
+                    self.command_checker()
+                    self.get_bot_engine_response()
+                elif split_event_details[0] == REPEAT_INPUT_TTS:
+                    self.listen_stt()
+                    self.bot_response = self.inference_output
+                    self.speak_tts()
+                elif split_event_details[0] == REPEAT_LAST:
+                    self.speak_tts()
+            else:
+                sleep(1)
+
+
+TalkControllerAccess = TalkController()
