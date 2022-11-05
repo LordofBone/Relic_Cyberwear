@@ -1,53 +1,40 @@
-#!/usr/bin/env python
+from hardware.heartbeart_sensor import display_heartrate
+from hardware.pi_operations import PiOperationsAccess
+from functions.tts_operations import TTSOperationsAccess
 
-# NOTE! This code should not be used for medical diagnosis. It's
-# for fun/novelty use only, so bear that in mind while using it.
-
-import time
-from max30105 import MAX30105, HeartRate
-
-max30105 = MAX30105()
-max30105.setup(leds_enable=2)
-
-max30105.set_led_pulse_amplitude(1, 0.2)
-max30105.set_led_pulse_amplitude(2, 12.5)
-max30105.set_led_pulse_amplitude(3, 0)
-
-max30105.set_slot_mode(1, 'red')
-max30105.set_slot_mode(2, 'ir')
-max30105.set_slot_mode(3, 'off')
-max30105.set_slot_mode(4, 'off')
+from config.heartrate_config import heart_check_time, time_to_switch_off
+from config.nix_tts import *
 
 
-def display_heartrate(beat, bpm, avg_bpm):
-    print("{} BPM: {:.2f}  AVG: {:.2f}".format("<3" if beat else "  ",
-                                               bpm, avg_bpm))
+from time import sleep, time
 
 
-hr = HeartRate(max30105)
+class HeartRateMonitor:
+    def __init__(self):
+        self.initial_time = 0
+        self.last_rate = 0
+        self.timeout_begun = False
+        self.check_timer = heart_check_time
+        self.switch_off = time_to_switch_off
 
-print("""
-NOTE! This code should not be used for medical diagnosis. It's
-for fun/novelty use only, so bear that in mind while using it.
-This example shows a readout of your heart rate in BPM (beats per
-minute) and heartbeats detected using a heart emoticon <3.
-It's best to hold the sensor against your fingertip (the fleshy side)
-using a piece of wire or a rubber band looped through the mounting
-holes on the breakout, as the sensor is very sensitive to small
-movements and it's hard to hold your finger against the sensor with
-even pressure.
-If you're using your MAX30105 Breakout with Breakout Garden, then
-we'd recommend using one of our Breakout Garden Extender Kits with
-some female-to-female jumper jerky.
-https://shop.pimoroni.com/products/breakout-garden-extender-kit
-""")
+    def check_rate(self):
+        while True:
+            current_rate = display_heartrate
 
-delay = 10
+            if not self.timeout_begun:
+                if current_rate == 0:
+                    start_time = time()
+                    self.timeout_begun = True
+            else:
+                if (time() - start_time < self.switch_off) and current_rate == 0:
+                    TTSOperationsAccess.generate_tts(shutdown_text)
+                    PiOperationsAccess.shutdown()
+                else:
+                    self.timeout_begun = False
 
-print("Starting readings in {} seconds...\n".format(delay))
-time.sleep(delay)
+            self.last_rate = current_rate
 
-try:
-    hr.on_beat(display_heartrate, average_over=4)
-except KeyboardInterrupt:
-    pass
+            sleep(0.01)
+
+
+HeartRateMonitorAccess = HeartRateMonitor()
