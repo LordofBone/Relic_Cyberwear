@@ -12,5 +12,7 @@ long_boot_text = "Welcome to the Arasaka Relic Cyberware System, your consciousn
                  "mind was acquired by the soul killer software produced by the arasaka corporation, please enjoy our" \
                  " product "
 
+shutdown_text = "Shutting down the system, please wait"
+
 audio_on = True
 file_name = "tts_output.wav"
