@@ -4,9 +4,12 @@ from Bot_Engine.functions import core_systems
 
 from events.event_queue import EventQueueAccess, CurrentProcessQueueAccess
 from Bot_Engine.functions.voice_controller import VoiceControllerAccess
+from functions.tts_operations import TTSOperationsAccess
+
+from config.nix_tts import *
 
 from events.event_types import LISTEN_STT, TALK_SYSTEMS, SPEAK_TTS, REPEAT_INPUT_TTS, REPEAT_LAST, LISTENING, \
-    INFERENCING_SPEECH, PROCESSING_RESPONSES, AUDIO_SYSTEM, ML_SYSTEM, RESPONSE_FOUND
+    INFERENCING_SPEECH, PROCESSING_RESPONSES, AUDIO_SYSTEM, ML_SYSTEM, RESPONSE_FOUND, INTRO_SPEECH
 
 from hardware.pi_operations import *
 
@@ -24,6 +27,8 @@ class TalkController:
 
         self.STT_handler = SpeechtoTextHandler()
 
+        self.TTS_handler = TTSOperationsAccess()
+
         self.inference_output = None
 
         self.bot_response = None
@@ -37,12 +42,19 @@ class TalkController:
         """
         self.interrupt = True
 
-    def speak_tts(self):
+    def speak_tts(self, text):
+        """
+        This function is used to speak custom text.
+        :return:
+        """
+        self.TTS_handler.generate_tts(text)
+
+    def speak_tts_bot_response(self):
         """
         This function is used to speak the bot response.
         :return:
         """
-        VoiceControllerAccess.tts(self.bot_response)
+        self.TTS_handler.generate_tts(self.bot_response)
 
     def listen_stt(self):
         """
@@ -104,9 +116,11 @@ class TalkController:
                 elif split_event_details[0] == REPEAT_INPUT_TTS:
                     self.listen_stt()
                     self.bot_response = self.inference_output
-                    self.speak_tts()
+                    self.speak_tts_bot_response()
                 elif split_event_details[0] == REPEAT_LAST:
-                    self.speak_tts()
+                    self.speak_tts_bot_response()
+                elif split_event_details[0] == INTRO_SPEECH:
+                    self.speak_tts(INTRO_SPEECH)
             else:
                 sleep(1)
 
