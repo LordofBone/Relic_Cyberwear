@@ -1,6 +1,6 @@
 from playsound import playsound
 import logging
-from pathlib import Path
+
 from config.nix_tts import *
 
 logger = logging.getLogger("voice-controller-logger")
@@ -41,7 +41,3 @@ class AudioEngine:
 
 
 AudioEngineAccess = AudioEngine()
-
-if __name__ == "__main__":
-    logging.basicConfig(level="DEBUG")
-    AudioEngineAccess.tts("testing text to speech")
