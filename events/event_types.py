@@ -52,4 +52,6 @@ TERTIARY = "TERTIARY"
 
 HARDWARE_PI = "HARDWARE_PI"
 
+INTRO_SPEECH = "INTRO_SPEECH"
+
 ANY = [x for x in dir() if not x.startswith("__")]
