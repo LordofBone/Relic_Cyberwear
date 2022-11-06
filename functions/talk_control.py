@@ -120,7 +120,7 @@ class TalkController:
                 elif split_event_details[0] == REPEAT_LAST:
                     self.speak_tts_bot_response()
                 elif split_event_details[0] == INTRO_SPEECH:
-                    self.speak_tts(INTRO_SPEECH)
+                    self.speak_tts(long_boot_text)
             else:
                 sleep(1)
 
