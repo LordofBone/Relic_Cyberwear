@@ -30,6 +30,7 @@ class TTSOperations:
         AudioEngineAccess.play_tts()
 
 
+# todo: maybe remove this
 TTSOperationsAccess = TTSOperations()
 
 if __name__ == "__main__":
