@@ -10,7 +10,21 @@ import logging
 logger = logging.getLogger("heartbeart-sensor-logger")
 
 
+class SensorInit:
+    """
+    Sets up the sensor and returns the sensor object for use in other functions
+    """
+    def __init__(self):
+        self.hr = None
+
+    def set_sensor(self):
+        self.hr = HeartRate(max30105)
+
+
 class BPMSetter:
+    """
+    Sets the bpm as a value for other functions to use
+    """
     def __init__(self):
         self.bpm = 0
 
@@ -22,6 +36,10 @@ class BPMSetter:
 
 
 def sensor_setup():
+    """
+    This function will set up the sensor and return the sensor object
+    :return:
+    """
     max30105 = MAX30105()
 
     max30105.setup(leds_enable=2)
@@ -37,21 +55,30 @@ def sensor_setup():
 
 
 def display_heartrate(beat, bpm, avg_bpm):
+    """
+    This function will display the bpm on the console and set the bpm in the setter class
+    :param beat:
+    :param bpm:
+    :param avg_bpm:
+    :return:
+    """
     logger.info("{} BPM: {:.2f}  AVG: {:.2f}".format("<3" if beat else "  ", bpm, avg_bpm))
 
     bpm_setter.set_bpm(bpm)
 
 
 def return_bpm():
+    """
+    This function will return the bpm value
+    :return:
+    """
     if heartbeat_sensor_online:
-        hr.on_beat(display_heartrate, average_over=4)
+        sensor_init.hr.on_beat(display_heartrate, average_over=4)
 
         return bpm_setter.get_bpm()
     else:
         return -1
 
-
-hr = HeartRate(max30105)
 
 print("""
 NOTE! This code should not be used for medical diagnosis. It's
@@ -69,11 +96,13 @@ some female-to-female jumper jerky.
 https://shop.pimoroni.com/products/breakout-garden-extender-kit
 """)
 
-
 try:
     sensor_setup()
     heartbeat_sensor_online = True
     bpm_setter = BPMSetter()
+    sensor_init = SensorInit()
+    sensor_init.set_sensor()
+
 except ModuleNotFoundError:
     print("No MAX30105 sensor found. Please check your wiring.")
     heartbeat_sensor_online = False
