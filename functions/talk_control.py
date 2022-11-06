@@ -3,8 +3,8 @@ from soran.integrate_stt import SpeechtoTextHandler
 from Bot_Engine.functions import core_systems
 
 from events.event_queue import EventQueueAccess, CurrentProcessQueueAccess
-from Bot_Engine.functions.voice_controller import VoiceControllerAccess
-from functions.tts_operations import TTSOperationsAccess
+
+from functions.tts_operations import TTSOperations
 
 from config.nix_tts import *
 
@@ -27,7 +27,7 @@ class TalkController:
 
         self.STT_handler = SpeechtoTextHandler()
 
-        self.TTS_handler = TTSOperationsAccess()
+        self.TTS_handler = TTSOperations()
 
         self.inference_output = None
 
