@@ -6,6 +6,7 @@
 from max30105 import MAX30105, HeartRate
 
 import logging
+import threading
 
 logger = logging.getLogger("heartbeart-sensor-logger")
 
@@ -14,10 +15,11 @@ class SensorInit:
     """
     Sets up the sensor and returns the sensor object for use in other functions
     """
+
     def __init__(self):
         self.hr = None
 
-    def set_sensor(self):
+    def set_sensor(self, max30105):
         self.hr = HeartRate(max30105)
 
 
@@ -25,6 +27,7 @@ class BPMSetter:
     """
     Sets the bpm as a value for other functions to use
     """
+
     def __init__(self):
         self.bpm = 0
 
@@ -53,6 +56,8 @@ def sensor_setup():
     max30105.set_slot_mode(3, 'off')
     max30105.set_slot_mode(4, 'off')
 
+    return max30105
+
 
 def display_heartrate(beat, bpm, avg_bpm):
     """
@@ -74,35 +79,35 @@ def return_bpm():
     """
     if heartbeat_sensor_online:
         sensor_init.hr.on_beat(display_heartrate, average_over=4)
-
-        return bpm_setter.get_bpm()
     else:
         return -1
 
 
-print("""
-NOTE! This code should not be used for medical diagnosis. It's
-for fun/novelty use only, so bear that in mind while using it.
-This example shows a readout of your heart rate in BPM (beats per
-minute) and heartbeats detected using a heart emoticon <3.
-It's best to hold the sensor against your fingertip (the fleshy side)
-using a piece of wire or a rubber band looped through the mounting
-holes on the breakout, as the sensor is very sensitive to small
-movements and it's hard to hold your finger against the sensor with
-even pressure.
-If you're using your MAX30105 Breakout with Breakout Garden, then
-we'd recommend using one of our Breakout Garden Extender Kits with
-some female-to-female jumper jerky.
-https://shop.pimoroni.com/products/breakout-garden-extender-kit
-""")
+# print("""
+# NOTE! This code should not be used for medical diagnosis. It's
+# for fun/novelty use only, so bear that in mind while using it.
+# This example shows a readout of your heart rate in BPM (beats per
+# minute) and heartbeats detected using a heart emoticon <3.
+# It's best to hold the sensor against your fingertip (the fleshy side)
+# using a piece of wire or a rubber band looped through the mounting
+# holes on the breakout, as the sensor is very sensitive to small
+# movements and it's hard to hold your finger against the sensor with
+# even pressure.
+# If you're using your MAX30105 Breakout with Breakout Garden, then
+# we'd recommend using one of our Breakout Garden Extender Kits with
+# some female-to-female jumper jerky.
+# https://shop.pimoroni.com/products/breakout-garden-extender-kit
+# """)
 
 try:
-    sensor_setup()
+    sensor_core = sensor_setup()
     heartbeat_sensor_online = True
     bpm_setter = BPMSetter()
     sensor_init = SensorInit()
-    sensor_init.set_sensor()
+    sensor_init.set_sensor(sensor_core)
+    threading.Thread(target=return_bpm, daemon=False).start()
 
-except ModuleNotFoundError:
-    print("No MAX30105 sensor found. Please check your wiring.")
+except ModuleNotFoundError as e:
+    logger.error(f"MAX30105 could not initialise or is not installed with error {e}. "
+                 f"Please check your wiring/libraries.")
     heartbeat_sensor_online = False
