@@ -3,9 +3,9 @@ from time import sleep, time
 from config.heartrate_config import heart_check_time, time_to_switch_off
 from config.nix_tts import *
 from functions.tts_operations import TTSOperationsAccess
-from hardware.heartbeart_sensor import bpm_setter
+from hardware.heartbeart_sensor import bpm_setter, bpm_handler
 from hardware.pi_operations import PiOperationsAccess
-
+import threading
 import logging
 
 logger = logging.getLogger("heartbeart-monitor-logger")
@@ -18,27 +18,37 @@ class HeartRateMonitor:
         self.last_rate = 0
         self.timeout_begun = False
         self.check_timer = heart_check_time
-        self.switch_off = time_to_switch_off
+        self.switch_off = time_to_switch_off * 60
+        threading.Thread(target=bpm_handler, daemon=False).start()
 
     def check_rate(self, test_mode=False):
+        """
+        This function will check the bpm and if it is 0 for a certain amount of time it will shut down the system
+        :param test_mode:
+        :return:
+        """
         while True:
             current_rate = bpm_setter.get_bpm()
 
-            print(current_rate)
+            logger.debug(f"Heart Rate: {current_rate}")
+            logger.debug(f"Timer begun: {self.timeout_begun}")
 
             if not self.timeout_begun:
                 if current_rate == 0:
                     self.start_time = time()
                     self.timeout_begun = True
             else:
-                if (time() - self.start_time < self.switch_off) and current_rate == 0:
+                if (time() - self.start_time > self.switch_off) and current_rate == 0:
+                    logger.debug(f'No heart beat detected for {time() - self.start_time} seconds')
+                    TTSOperationsAccess.generate_tts(shutdown_text)
                     if not test_mode:
-                        TTSOperationsAccess.generate_tts(shutdown_text)
                         PiOperationsAccess.shutdown()
                     else:
-                        logger.info("Shutdown would be initiated")
-                else:
+                        logger.debug("Shutdown would be initiated")
+                elif current_rate > 0:
                     self.timeout_begun = False
+
+                logger.debug(f"{time() - self.start_time}")
 
             self.last_rate = current_rate
 

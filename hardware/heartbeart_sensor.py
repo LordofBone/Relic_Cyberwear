@@ -6,7 +6,6 @@
 from max30105 import MAX30105, HeartRate
 
 import logging
-import threading
 
 logger = logging.getLogger("heartbeart-sensor-logger")
 
@@ -61,26 +60,31 @@ def sensor_setup():
 
 def display_heartrate(beat, bpm, avg_bpm):
     """
-    This function will display the bpm on the console and set the bpm in the setter class
-    :param beat:
-    :param bpm:
-    :param avg_bpm:
-    :return:
+    This function will set the bpm value and exit the on_beat function if beat detected
     """
-    logger.info("{} BPM: {:.2f}  AVG: {:.2f}".format("<3" if beat else "  ", bpm, avg_bpm))
+    logger.debug("{} BPM: {:.2f}  AVG: {:.2f}".format("<3" if beat else "  ", bpm, avg_bpm))
 
     bpm_setter.set_bpm(bpm)
 
-
-def return_bpm():
-    """
-    This function will return the bpm value
-    :return:
-    """
-    if heartbeat_sensor_online:
-        sensor_init.hr.on_beat(display_heartrate, average_over=4)
+    if bpm == 0:
+        return False
     else:
-        return -1
+        return True
+
+
+def bpm_handler():
+    """
+    This function will handle the bpm and call the display_heartrate function, recalling the on_beat function when
+    heartrate is detected; this is to ensure that if a beat is detected it will not continue returning the same bpm
+    even if the heart rate is 0 on subsequent checks. This is because on_beat only updates the bpm when a beat is
+    detected
+    """
+
+    while True:
+        if heartbeat_sensor_online:
+            sensor_init.hr.on_beat(display_heartrate, average_over=4)
+        else:
+            bpm_setter.set_bpm(-1)
 
 
 # print("""
@@ -105,7 +109,6 @@ try:
     bpm_setter = BPMSetter()
     sensor_init = SensorInit()
     sensor_init.set_sensor(sensor_core)
-    threading.Thread(target=return_bpm, daemon=False).start()
 
 except ModuleNotFoundError as e:
     logger.error(f"MAX30105 could not initialise or is not installed with error {e}. "
