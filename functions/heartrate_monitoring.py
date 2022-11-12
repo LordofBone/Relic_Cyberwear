@@ -3,7 +3,7 @@ from time import sleep, time
 from config.heartrate_config import heart_check_time, time_to_switch_off
 from config.nix_tts import *
 from functions.tts_operations import TTSOperationsAccess
-from hardware.heartbeart_sensor import bpm_setter, bpm_handler
+from hardware.heartbeart_sensor import SensorOperationsAccess
 from hardware.pi_operations import PiOperationsAccess
 import threading
 import logging
@@ -19,7 +19,7 @@ class HeartRateMonitor:
         self.timeout_begun = False
         self.check_timer = heart_check_time
         self.switch_off = time_to_switch_off * 60
-        threading.Thread(target=bpm_handler, daemon=False).start()
+        threading.Thread(target=SensorOperationsAccess.bpm_handler, daemon=False).start()
 
     def check_rate(self, test_mode=False):
         """
@@ -28,7 +28,7 @@ class HeartRateMonitor:
         :return:
         """
         while True:
-            current_rate = bpm_setter.get_bpm()
+            current_rate = SensorOperationsAccess.bpm_setter.get_bpm()
 
             logger.debug(f"Heart Rate: {current_rate}")
             logger.debug(f"Timer begun: {self.timeout_begun}")
