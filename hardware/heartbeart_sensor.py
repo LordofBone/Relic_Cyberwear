@@ -43,13 +43,14 @@ class SensorOperations:
         try:
             self.sensor_init = self.SensorInit()
             self.sensor_core = sensor_setup()
-            self.bpm_setter = self.BPMSetter()
             self.sensor_init.set_sensor(self.sensor_core)
             self.sensor_init.heartbeat_sensor_online = True
 
         except ModuleNotFoundError as e:
             logger.error(f"MAX30105 could not initialise or is not installed with error {e}. "
                          f"Please check your wiring/libraries.")
+
+        self.bpm_setter = self.BPMSetter()
 
         logger.info("Heartbeat Sensor Online")
 
