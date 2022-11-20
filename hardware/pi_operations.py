@@ -1,5 +1,5 @@
 from events.event_queue import EventQueueAccess
-from events.event_types import SHUTDOWN, REBOOT, HARDWARE_PI
+from config.event_types import SHUTDOWN, REBOOT, HARDWARE_PI
 
 from subprocess import call
 
