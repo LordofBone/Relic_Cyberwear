@@ -8,12 +8,14 @@ from functions.tts_operations import TTSOperations
 
 from config.nix_tts import *
 
-from events.event_types import LISTEN_STT, TALK_SYSTEMS, SPEAK_TTS, REPEAT_INPUT_TTS, REPEAT_LAST, LISTENING, \
+from config.event_types import LISTEN_STT, TALK_SYSTEMS, SPEAK_TTS, REPEAT_INPUT_TTS, REPEAT_LAST, LISTENING, \
     INFERENCING_SPEECH, PROCESSING_RESPONSES, AUDIO_SYSTEM, ML_SYSTEM, RESPONSE_FOUND, INTRO_SPEECH
 
 from hardware.pi_operations import *
 
-logger = logging.getLogger("talk-control")
+logging.basicConfig()
+logger = logging.getLogger(__name__)
+
 
 BotControl = core_systems.CoreInterface.integrate()
 
@@ -62,16 +64,22 @@ class TalkController:
         :return:
         """
         # todo: use TalkControllerAccess.STT_handler.listening
-        CurrentProcessQueueAccess.queue_addition(AUDIO_SYSTEM, LISTENING, 1)
+        # CurrentProcessQueueAccess.queue_addition(AUDIO_SYSTEM, LISTENING, 1)
+
+        print("Listening")
 
         self.STT_handler.initiate_recording()
 
-        CurrentProcessQueueAccess.queue_addition(ML_SYSTEM, INFERENCING_SPEECH, 1)
+        # CurrentProcessQueueAccess.queue_addition(ML_SYSTEM, INFERENCING_SPEECH, 1)
+
+        print("Inferencing")
 
         self.inference_output = self.STT_handler.run_inference()
 
-        CurrentProcessQueueAccess.queue_addition(ML_SYSTEM, f"Heard: {self.inference_output}", 1)
+        print("DONE")
 
+        # CurrentProcessQueueAccess.queue_addition(ML_SYSTEM, f"Heard: {self.inference_output}", 1)
+        print(self.inference_output)
         logger.debug(self.inference_output)
 
     def get_bot_engine_response(self):
@@ -93,19 +101,24 @@ class TalkController:
         :return:
         """
         if self.inference_output == "command shut down":
-            EventQueueAccess().add_event(HARDWARE_PI, SHUTDOWN, 5)
+            EventQueueAccess.add_event(HARDWARE_PI, SHUTDOWN, 5)
         elif self.inference_output == "command recite":
-            EventQueueAccess().add_event(TALK_SYSTEMS, REPEAT_INPUT_TTS, 3)
+            EventQueueAccess.add_event(TALK_SYSTEMS, REPEAT_INPUT_TTS, 3)
         elif self.inference_output == "command repeat":
-            EventQueueAccess().add_event(TALK_SYSTEMS, REPEAT_LAST, 3)
+            EventQueueAccess.add_event(TALK_SYSTEMS, REPEAT_LAST, 3)
 
     def queue_checker(self):
         """
         Check the event queue for events
         :return:
         """
+
         while True:
             event = EventQueueAccess.get_latest_event([TALK_SYSTEMS])
+
+            print(event)
+
+            logging.debug(event)
 
             if event:
                 split_event_details = event[2].split("|")

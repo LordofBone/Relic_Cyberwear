@@ -5,10 +5,14 @@ from config.nix_tts import *
 from functions.tts_operations import TTSOperationsAccess
 from hardware.heartbeart_sensor import SensorOperationsAccess
 from hardware.pi_operations import PiOperationsAccess
+from events.event_queue import queue_adder
+from config.event_types import LISTEN_STT, TALK_SYSTEMS
 import threading
 import logging
 
-logger = logging.getLogger("heartbeart-monitor-logger")
+
+logging.basicConfig()
+logger = logging.getLogger(__name__)
 
 
 class HeartRateMonitor:
@@ -37,6 +41,10 @@ class HeartRateMonitor:
                 if current_rate == 0:
                     self.start_time = time()
                     self.timeout_begun = True
+                elif current_rate == -1:
+                    queue_adder(TALK_SYSTEMS, LISTEN_STT, 2)
+                else:
+                    queue_adder(TALK_SYSTEMS, LISTEN_STT, 2)
             else:
                 if (time() - self.start_time > self.switch_off) and current_rate == 0:
                     logger.debug(f'No heart beat detected for {time() - self.start_time} seconds')
