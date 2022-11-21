@@ -1,4 +1,4 @@
-from soran.integrate_stt import SpeechtoTextHandler
+from Lakul.integrate_stt import SpeechtoTextHandler
 
 from Bot_Engine.functions import core_systems
 
