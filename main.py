@@ -11,7 +11,7 @@ from functions.mission_processor_systems import MissionProcessorAccess
 from events.event_queue import queue_adder
 from config.event_types import TALK_SYSTEMS, INTRO_SPEECH
 
-from config.parameters import logging_level, testing_mode
+from config.launch_config import logging_level, testing_mode
 
 
 if __name__ == "__main__":
