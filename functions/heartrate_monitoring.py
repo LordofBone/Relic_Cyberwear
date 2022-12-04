@@ -60,7 +60,7 @@ class HeartRateMonitor:
 
             self.last_rate = current_rate
 
-            sleep(0.01)
+            sleep(5)
 
 
 HeartRateMonitorAccess = HeartRateMonitor()
