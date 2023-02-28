@@ -1,10 +1,13 @@
 from Lakul.integrate_stt import SpeechtoTextHandler
 
-from Bot_Engine.functions import core_systems
-
 from events.event_queue import EventQueueAccess, CurrentProcessQueueAccess
 
+from events.event_queue import queue_adder
+from config.event_types import TALK_SYSTEMS, INTRO_SPEECH, LISTEN_STT
+
 from functions.tts_operations import TTSOperations
+
+from api.chatgpt_integration import run_chatgpt
 
 from config.nix_tts import *
 
@@ -17,16 +20,11 @@ logging.basicConfig()
 logger = logging.getLogger(__name__)
 
 
-BotControl = core_systems.CoreInterface.integrate()
-
-
 class TalkController:
     def __init__(self):
         """
         This is the main class that runs the STT and bot interaction.
         """
-        self.bot_control = BotControl
-
         self.STT_handler = SpeechtoTextHandler()
 
         self.TTS_handler = TTSOperations()
@@ -72,6 +70,8 @@ class TalkController:
 
         # CurrentProcessQueueAccess.queue_addition(ML_SYSTEM, INFERENCING_SPEECH, 1)
 
+        # todo: this can run slow, so announce when listening starts and ends
+
         print("Inferencing")
 
         self.inference_output = self.STT_handler.run_inference()
@@ -89,10 +89,11 @@ class TalkController:
         """
         CurrentProcessQueueAccess.queue_addition(ML_SYSTEM, PROCESSING_RESPONSES, 1)
 
-        self.bot_response = (BotControl.input_get_response(self.inference_output))
+        self.bot_response = run_chatgpt(self.inference_output)
 
         CurrentProcessQueueAccess.queue_addition(RESPONSE_FOUND, f"REPLY: {self.bot_response}", 1)
 
+        print(self.bot_response)
         logger.debug(self.bot_response)
 
     def command_checker(self):
@@ -116,8 +117,6 @@ class TalkController:
         while True:
             event = EventQueueAccess.get_latest_event([TALK_SYSTEMS])
 
-            print(event)
-
             logging.debug(event)
 
             if event:
@@ -126,6 +125,7 @@ class TalkController:
                     self.listen_stt()
                     self.command_checker()
                     self.get_bot_engine_response()
+                    queue_adder(TALK_SYSTEMS, LISTEN_STT, 2)
                 elif split_event_details[0] == REPEAT_INPUT_TTS:
                     self.listen_stt()
                     self.bot_response = self.inference_output

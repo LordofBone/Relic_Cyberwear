@@ -25,6 +25,9 @@ class HeartRateMonitor:
         self.switch_off = time_to_switch_off * 60
         threading.Thread(target=SensorOperationsAccess.bpm_handler, daemon=False).start()
 
+    def get_rate(self):
+        return self.last_rate
+
     def check_rate(self, test_mode=False):
         """
         This function will check the bpm and if it is 0 for a certain amount of time it will shut down the system

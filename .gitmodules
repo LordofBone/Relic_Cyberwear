@@ -1,9 +1,6 @@
 [submodule "nix-tts"]
 	path = nix-tts
 	url = https://github.com/rendchevi/nix-tts.git
-[submodule "Bot_Engine"]
-	path = Bot_Engine
-	url = https://github.com/LordofBone/Bot_Engine
 [submodule "Lakul"]
 	path = Lakul
 	url = https://github.com/LordofBone/Lakul

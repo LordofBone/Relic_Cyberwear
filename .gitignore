@@ -10,3 +10,4 @@ models/stochastic/*
 !models/stochastic/.gitkeep
 audio/*
 !audio/.gitkeep
+test_*.py

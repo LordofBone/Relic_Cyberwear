@@ -9,13 +9,13 @@ from functions.heartrate_monitoring import HeartRateMonitorAccess
 from functions.mission_processor_systems import MissionProcessorAccess
 
 from events.event_queue import queue_adder
-from config.event_types import TALK_SYSTEMS, INTRO_SPEECH
+from config.event_types import TALK_SYSTEMS, INTRO_SPEECH, LISTEN_STT
 
 from config.launch_config import logging_level, testing_mode
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Artificial Life')
+    parser = argparse.ArgumentParser(description='Relic Cyberware System')
 
     parser.add_argument('-l', '--log-level', action="store", dest="log_level", type=str, default=logging_level,
                         choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'NOTSET'], help='Logging level')
@@ -30,6 +30,8 @@ if __name__ == "__main__":
     logger = logging.getLogger("relic-cyberware-system")
     logger.setLevel(args.log_level)
 
+    logger.info("Initialising Relic Cyberware System, please stand by...")
+
     threading.Thread(target=HeartRateMonitorAccess.check_rate, args=(args.test_mode,), daemon=False).start()
 
     logger.info("Started Heart Rate Monitoring")
@@ -39,8 +41,8 @@ if __name__ == "__main__":
 
     logger.info("Started Talk Controller")
 
-    # # Welcome the user to the Relic System
-    # queue_adder(TALK_SYSTEMS, INTRO_SPEECH, 1)
+    # Welcome the user to the Relic System
+    queue_adder(TALK_SYSTEMS, INTRO_SPEECH, 1)
 
     # Start the mission parameteriser parameter getter as a thread
     threading.Thread(target=MissionProcessorAccess.objective_processor, daemon=False).start()
@@ -48,4 +50,6 @@ if __name__ == "__main__":
     threading.Thread(target=MissionProcessorAccess.standing_order_refresher, daemon=False).start()
 
     logger.info("Started Mission Processor")
+
+    queue_adder(TALK_SYSTEMS, LISTEN_STT, 2)
 

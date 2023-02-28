@@ -14,5 +14,5 @@ long_boot_text = "Welcome to the Arasaka Relic Cyberware System, your consciousn
 
 shutdown_text = "Shutting down the system, please wait"
 
-audio_on = True
+audio_on = False
 file_name = "tts_output.wav"

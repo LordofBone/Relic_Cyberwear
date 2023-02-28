@@ -1,2 +1,2 @@
 logging_level = 'INFO'
-testing_mode = False
+testing_mode = True
