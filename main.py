@@ -3,7 +3,7 @@ import logging
 
 import config.submodule_dirs
 from config.launch_config import logging_level, testing_mode
-from config.nix_tts import boot_text
+from config.nix_tts import boot_text, boot_text_test
 from functions.talk_control import TalkControllerAccess
 
 if __name__ == "__main__":
@@ -43,7 +43,7 @@ if __name__ == "__main__":
             TalkControllerAccess.speak_tts_bot_response()
 
     else:
-        TalkControllerAccess.speak_tts(boot_text)
+        TalkControllerAccess.speak_tts(boot_text_test)
         TalkControllerAccess.listen_stt()
         TalkControllerAccess.get_bot_engine_response()
         TalkControllerAccess.speak_tts_bot_response()
