@@ -1,18 +1,9 @@
-import threading
-import config.submodule_dirs
-
-import logging
 import argparse
-
-from functions.talk_control import TalkControllerAccess
-from functions.heartrate_monitoring import HeartRateMonitorAccess
-from functions.mission_processor_systems import MissionProcessorAccess
-
-from events.event_queue import queue_adder
-from config.event_types import TALK_SYSTEMS, INTRO_SPEECH, LISTEN_STT
+import logging
 
 from config.launch_config import logging_level, testing_mode
-
+from config.nix_tts import boot_text
+from functions.talk_control import TalkControllerAccess
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Relic Cyberware System')
@@ -21,9 +12,18 @@ if __name__ == "__main__":
                         choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'NOTSET'], help='Logging level')
 
     parser.add_argument('-t', '--test_mode', action="store_true", dest="test_mode", default=testing_mode,
-                        help='Stops the system from shutting down when no more heartbeats are detected')
+                        help='Stops the system from shutting down when no more heartbeats are detected and does not '
+                             'loop')
 
     args = parser.parse_args()
+
+    print("""
+    NOTE 2! Along with the other message shown this code AND hardware should not be used for medical diagnosis. It's
+    for fun/novelty use only, so bear that in mind while using it.
+    Also bear in mind that ChatGPT will respond with the style of whatever context you have set within 
+    config/chatgpt_config.py so I can't be sure what it will say. And I can't take any responsibility for any other 
+    context that is set or what it says.
+    """)
 
     logging.basicConfig(level=args.log_level)
 
@@ -32,24 +32,17 @@ if __name__ == "__main__":
 
     logger.info("Initialising Relic Cyberware System, please stand by...")
 
-    threading.Thread(target=HeartRateMonitorAccess.check_rate, args=(args.test_mode,), daemon=False).start()
+    if not args.test_mode:
 
-    logger.info("Started Heart Rate Monitoring")
+        while True:
+            TalkControllerAccess.speak_tts(boot_text)
+            TalkControllerAccess.listen_stt()
+            TalkControllerAccess.command_checker()
+            TalkControllerAccess.get_bot_engine_response()
+            TalkControllerAccess.speak_tts_bot_response()
 
-    # Start talk control as a thread
-    threading.Thread(target=TalkControllerAccess.queue_checker, daemon=False).start()
-
-    logger.info("Started Talk Controller")
-
-    # Welcome the user to the Relic System
-    queue_adder(TALK_SYSTEMS, INTRO_SPEECH, 1)
-
-    # Start the mission parameteriser parameter getter as a thread
-    threading.Thread(target=MissionProcessorAccess.objective_processor, daemon=False).start()
-
-    threading.Thread(target=MissionProcessorAccess.standing_order_refresher, daemon=False).start()
-
-    logger.info("Started Mission Processor")
-
-    queue_adder(TALK_SYSTEMS, LISTEN_STT, 2)
-
+    else:
+        TalkControllerAccess.speak_tts(boot_text)
+        TalkControllerAccess.listen_stt()
+        TalkControllerAccess.get_bot_engine_response()
+        TalkControllerAccess.speak_tts_bot_response()

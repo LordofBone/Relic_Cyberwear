@@ -1,5 +1,6 @@
-from playsound import playsound
 import logging
+
+from playsound import playsound
 
 from config.nix_tts import *
 
@@ -11,6 +12,12 @@ def talking_start_finish(method):
     has been added in so that the system knows when words are being spoken """
 
     def talk_time(*args, **kw):
+        """
+        This function is used to set the talking variable to True when the system is speaking and False when it is not.
+        :param args:
+        :param kw:
+        :return:
+        """
         while AudioEngineAccess.talking:
             pass
         AudioEngineAccess.talking = True
@@ -36,6 +43,10 @@ class AudioEngine:
 
     @talking_start_finish
     def play_tts(self):
+        """
+        This function is used to play the generated TTS output.
+        :return:
+        """
         if self.audio_on:
             playsound(self.generated_tts)
 

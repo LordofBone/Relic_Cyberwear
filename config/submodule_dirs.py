@@ -1,5 +1,5 @@
-from pathlib import Path
 import sys
+from pathlib import Path
 
 lakul_dir = Path(__file__).parent.parent / 'Lakul'
 

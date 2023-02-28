@@ -1,10 +1,10 @@
 import importlib
+import sys
 
 import soundfile as sf
 
 from config.nix_tts import *
 from functions.audio_output import AudioEngineAccess
-import sys
 
 sys.path.append(nix_dir)
 
@@ -18,9 +18,14 @@ class TTSOperations:
         self.filename = f'{audio_dir}/{file_name}'
 
         # Initiate Nix-TTS
-        self.nix = klass(model_dir=determ_model_path)
+        self.nix = klass(model_dir=stoch_model_path)
 
     def generate_tts(self, text_input):
+        """
+        Generate TTS output.
+        :param text_input:
+        :return:
+        """
         # Tokenize input text
         c, c_length, phoneme = self.nix.tokenize(text_input)
         # Convert text to raw speech

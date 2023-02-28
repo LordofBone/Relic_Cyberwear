@@ -1,20 +1,10 @@
+import logging
+
 from Lakul.integrate_stt import SpeechtoTextHandler
-
-from events.event_queue import EventQueueAccess, CurrentProcessQueueAccess
-
-from events.event_queue import queue_adder
-from config.event_types import TALK_SYSTEMS, INTRO_SPEECH, LISTEN_STT
-
-from functions.tts_operations import TTSOperations
-
 from api.chatgpt_integration import run_chatgpt
-
 from config.nix_tts import *
-
-from config.event_types import LISTEN_STT, TALK_SYSTEMS, SPEAK_TTS, REPEAT_INPUT_TTS, REPEAT_LAST, LISTENING, \
-    INFERENCING_SPEECH, PROCESSING_RESPONSES, AUDIO_SYSTEM, ML_SYSTEM, RESPONSE_FOUND, INTRO_SPEECH
-
-from hardware.pi_operations import *
+from functions.tts_operations import TTSOperationsAccess
+from hardware.pi_operations import PiOperationsAccess
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
@@ -27,50 +17,33 @@ class TalkController:
         """
         self.STT_handler = SpeechtoTextHandler()
 
-        self.TTS_handler = TTSOperations()
-
         self.inference_output = None
 
         self.bot_response = None
-
-        self.interrupt = False
-
-    def activate_interrupt(self):
-        """
-        This function is used to interrupt the STT and bot interaction.
-        :return:
-        """
-        self.interrupt = True
 
     def speak_tts(self, text):
         """
         This function is used to speak custom text.
         :return:
         """
-        self.TTS_handler.generate_tts(text)
+        TTSOperationsAccess.generate_tts(text)
 
     def speak_tts_bot_response(self):
         """
         This function is used to speak the bot response.
         :return:
         """
-        self.TTS_handler.generate_tts(self.bot_response)
+        TTSOperationsAccess.generate_tts(self.bot_response)
 
     def listen_stt(self):
         """
         This is the main function that runs the STT and bot interaction.
         :return:
         """
-        # todo: use TalkControllerAccess.STT_handler.listening
-        # CurrentProcessQueueAccess.queue_addition(AUDIO_SYSTEM, LISTENING, 1)
 
         print("Listening")
 
         self.STT_handler.initiate_recording()
-
-        # CurrentProcessQueueAccess.queue_addition(ML_SYSTEM, INFERENCING_SPEECH, 1)
-
-        # todo: this can run slow, so announce when listening starts and ends
 
         print("Inferencing")
 
@@ -78,64 +51,33 @@ class TalkController:
 
         print("DONE")
 
-        # CurrentProcessQueueAccess.queue_addition(ML_SYSTEM, f"Heard: {self.inference_output}", 1)
         print(self.inference_output)
         logger.debug(self.inference_output)
+
+    def command_checker(self):
+        """
+        This function checks for commands.
+        :return:
+        """
+        if self.inference_output == "SHUTDOWN":
+            TTSOperationsAccess.generate_tts(shutdown_text)
+            PiOperationsAccess.shutdown_pi()
+        elif self.inference_output == "SHUT DOWN":
+            TTSOperationsAccess.generate_tts(shutdown_text)
+            PiOperationsAccess.shutdown_pi()
+        elif self.inference_output == "REBOOT":
+            TTSOperationsAccess.generate_tts(reboot_text)
+            PiOperationsAccess.reboot_pi()
 
     def get_bot_engine_response(self):
         """
         This function returns the bot response.
         :return:
         """
-        CurrentProcessQueueAccess.queue_addition(ML_SYSTEM, PROCESSING_RESPONSES, 1)
-
         self.bot_response = run_chatgpt(self.inference_output)
-
-        CurrentProcessQueueAccess.queue_addition(RESPONSE_FOUND, f"REPLY: {self.bot_response}", 1)
 
         print(self.bot_response)
         logger.debug(self.bot_response)
-
-    def command_checker(self):
-        """
-        This function checks if the bot response is a command.
-        :return:
-        """
-        if self.inference_output == "command shut down":
-            EventQueueAccess.add_event(HARDWARE_PI, SHUTDOWN, 5)
-        elif self.inference_output == "command recite":
-            EventQueueAccess.add_event(TALK_SYSTEMS, REPEAT_INPUT_TTS, 3)
-        elif self.inference_output == "command repeat":
-            EventQueueAccess.add_event(TALK_SYSTEMS, REPEAT_LAST, 3)
-
-    def queue_checker(self):
-        """
-        Check the event queue for events
-        :return:
-        """
-
-        while True:
-            event = EventQueueAccess.get_latest_event([TALK_SYSTEMS])
-
-            logging.debug(event)
-
-            if event:
-                split_event_details = event[2].split("|")
-                if split_event_details[0] == LISTEN_STT:
-                    self.listen_stt()
-                    self.command_checker()
-                    self.get_bot_engine_response()
-                    queue_adder(TALK_SYSTEMS, LISTEN_STT, 2)
-                elif split_event_details[0] == REPEAT_INPUT_TTS:
-                    self.listen_stt()
-                    self.bot_response = self.inference_output
-                    self.speak_tts_bot_response()
-                elif split_event_details[0] == REPEAT_LAST:
-                    self.speak_tts_bot_response()
-                elif split_event_details[0] == INTRO_SPEECH:
-                    self.speak_tts(long_boot_text)
-            else:
-                sleep(1)
 
 
 TalkControllerAccess = TalkController()

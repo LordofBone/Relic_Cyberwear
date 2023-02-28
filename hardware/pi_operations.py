@@ -1,10 +1,5 @@
-from events.event_queue import EventQueueAccess
-from config.event_types import SHUTDOWN, REBOOT, HARDWARE_PI
-
-from subprocess import call
-
 import logging
-
+from subprocess import call
 from time import sleep
 
 logger = logging.getLogger("pi-operations")
@@ -32,21 +27,6 @@ class PiOperations:
         logger.debug(f"Restarting in {self.shutdown_wait_seconds} seconds")
         sleep(self.shutdown_wait_seconds)
         call('sudo reboot now', shell=True)
-
-    def queue_checker(self):
-        """
-        Check the event queue for events
-        :return:
-        """
-        while True:
-            event = EventQueueAccess.get_latest_event([HARDWARE_PI])
-            if event:
-                if event[1] == SHUTDOWN:
-                    self.shutdown()
-                elif event[1] == REBOOT:
-                    self.reboot()
-            else:
-                sleep(1)
 
 
 PiOperationsAccess = PiOperations()

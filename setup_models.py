@@ -1,5 +1,3 @@
-import config.submodule_dirs
-
 from utils.download_models import download_models
 
 

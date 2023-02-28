@@ -3,9 +3,9 @@
 
 # This code is based on the MAX30105 library examples by Pimoroni: https://github.com/pimoroni/max30105-python
 
-from max30105 import MAX30105, HeartRate
-
 import logging
+
+from max30105 import MAX30105, HeartRate
 
 logger = logging.getLogger("heartbeart-sensor-logger")
 
@@ -38,7 +38,7 @@ class SensorOperations:
 
     def __init__(self):
         """
-        This function will initialise the heart sensor
+        This function will initialise the sensor and set the bpm to 0
         """
         try:
             self.sensor_init = self.SensorInit()
