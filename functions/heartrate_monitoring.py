@@ -18,6 +18,7 @@ class HeartRateMonitor:
         This function returns the current heart rate.
         :return:
         """
+        SensorOperationsAccess.analyse_heart_rate()
         return SensorOperationsAccess.bpm_setter.get_bpm()
 
 

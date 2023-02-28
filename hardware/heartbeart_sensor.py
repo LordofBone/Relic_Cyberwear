@@ -93,19 +93,16 @@ class SensorOperations:
         else:
             return True
 
-    def bpm_handler(self):
+    def analyse_heart_rate(self):
         """
-        This function will handle the bpm and call the display_heartrate function, recalling the on_beat function when
-        heartrate is detected; this is to ensure that if a beat is detected it will not continue returning the same bpm
-        even if the heart rate is 0 on subsequent checks. This is because on_beat only updates the bpm when a beat is
-        detected
+        This function will analyse the heart rate and call the display_heartrate function, which will then set the bpm
+        average over 4 samples
+        :return:
         """
-
-        while True:
-            if self.sensor_init.heartbeat_sensor_online:
-                self.sensor_init.hr.on_beat(self.display_heartrate, average_over=4)
-            else:
-                self.bpm_setter.set_bpm(-1)
+        if self.sensor_init.heartbeat_sensor_online:
+            self.sensor_init.hr.on_beat(self.display_heartrate, average_over=4)
+        else:
+            self.bpm_setter.set_bpm(-1)
 
 
 SensorOperationsAccess = SensorOperations()
