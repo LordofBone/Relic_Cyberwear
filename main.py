@@ -1,6 +1,7 @@
 import argparse
 import logging
 
+import config.submodule_dirs
 from config.launch_config import logging_level, testing_mode
 from config.nix_tts import boot_text
 from functions.talk_control import TalkControllerAccess
