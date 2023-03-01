@@ -1,6 +1,8 @@
 import importlib
 import sys
-
+from fakeyou.fakeyou import FakeYou
+from config.launch_config import fakeyou_mode
+from config.fakeyou_config import *
 import soundfile as sf
 
 from config.nix_tts import *
@@ -35,8 +37,25 @@ class TTSOperations:
         AudioEngineAccess.play_tts()
 
 
-# todo: maybe remove this
-TTSOperationsAccess = TTSOperations()
+class TTSOperations_FakeYou:
+    def __init__(self):
+        self.tts_runner = FakeYou()
+        self.tts_runner.login(username, password)
+
+    def generate_tts(self, text_input):
+        """
+        Generate TTS output.
+        :param text_input:
+        :return:
+        """
+        output = self.tts_runner.say(text_input, voice_model)
+        print(output)
+
+
+if fakeyou_mode:
+    TTSOperationsAccess = TTSOperations_FakeYou()
+else:
+    TTSOperationsAccess = TTSOperations()
 
 if __name__ == "__main__":
     TTSOperationsAccess.generate_tts(boot_text)
