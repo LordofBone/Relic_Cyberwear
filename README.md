@@ -1,5 +1,11 @@
 ### Installation
 
+#### Quick Warning
+This code AND hardware should not be used for medical diagnosis. It's for fun/novelty use only, so bear that in mind 
+while using it. Also bear in mind that ChatGPT will respond with the style of whatever context you have set within 
+config/chatgpt_config.py, so I can't be sure what it will say. And I can't take any responsibility for any other context 
+that is set or what it says.
+
 Grab the latest RPi OS 64 bit using the Raspberry Pi Imager [here](https://www.raspberrypi.org/software/)
 
 Checkout the code with:
