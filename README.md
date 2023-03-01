@@ -17,10 +17,6 @@ it outside the virtual environment with:
 
 ```sudo pip install git+https://github.com/mmabrouk/chatgpt-wrapper```
 
-and also found that it would only install and login with:
-
-```python -m chatgpt install```
-
 Follow the installation for the Audio DAC Shim [here](https://shop.pimoroni.com/products/audio-dac-shim-line-out)
 
 ### Hardware
