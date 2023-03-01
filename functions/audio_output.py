@@ -38,9 +38,6 @@ class AudioEngine:
 
         self.generated_tts = f'{self.path}/{file_name}'
 
-        self.online = f'{self.path}/online.wav'
-        self.training = f'{self.path}/training.wav'
-
     @talking_start_finish
     def play_tts(self):
         """
