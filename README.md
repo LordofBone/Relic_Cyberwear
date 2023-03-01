@@ -33,6 +33,20 @@ the Cyberware to have. Bear in mind I can't be sure what ChatGPT will say, espec
 
 You can also change what it says on boot in config/nix_tts.py
 
+#### For the advanced TTS setup:
+Check what the T&C's say on [FakeYou's](https://fakeyou.com/) website.
+
+The Python FakeYou API is from [here](https://github.com/shards-7/fakeyou.py)
+
+I take no responsibility for what anybody does with FakeYou via modifying this program, also be warned that ChatGPT may
+generate odd things to be passed into FakeYou, which also depends on what is said to ChatGPT.
+
+Copy/rename the file config/fakeyou_config_template.py to config/fakeyou_config.py and add your own username/password and
+voice ID - you can find this on the site [here](https://fakeyou.com/)
+
+Also ensure this var under config/launch_config.py is set to True:
+```fakeyou_mode = True```
+
 ### Running
 
 Run the program with:
