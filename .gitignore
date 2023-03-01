@@ -11,3 +11,4 @@ models/stochastic/*
 audio/*
 !audio/.gitkeep
 test_*.py
+config/fakeyou_config.py
