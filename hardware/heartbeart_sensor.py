@@ -4,6 +4,8 @@
 # This code is based on the MAX30105 library examples by Pimoroni: https://github.com/pimoroni/max30105-python
 
 import logging
+import threading
+from time import sleep
 
 from max30105 import MAX30105, HeartRate
 
@@ -100,9 +102,23 @@ class SensorOperations:
         :return:
         """
         if self.sensor_init.heartbeat_sensor_online:
-            self.sensor_init.hr.on_beat(self.display_heartrate, average_over=4)
+            # create a new thread that will run the heartbeat detector
+            t = threading.Thread(target=self.wait_for_heartbeat)
+            t.daemon = True
+            t.start()
+
+            # wait for 30 seconds or until the heartbeat detector thread finishes
+            t.join(timeout=30)
+
+            # check if the heartbeat detector thread is still running
+            if t.is_alive():
+                # if it's still running, terminate it
+                self.bpm_setter.set_bpm(0)
         else:
             self.bpm_setter.set_bpm(-1)
+
+    def wait_for_heartbeat(self):
+        self.sensor_init.hr.on_beat(self.display_heartrate, average_over=4)
 
 
 SensorOperationsAccess = SensorOperations()
